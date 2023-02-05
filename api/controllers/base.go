@@ -22,6 +22,7 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 
 	var err error
 
+	// connect to database
 	if Dbdriver == "mysql" {
 		DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
 		server.DB, err = gorm.Open(Dbdriver, DBURL)
@@ -43,6 +44,7 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 		}
 	}
 
+	// run autoMigrate for user & post table
 	server.DB.Debug().AutoMigrate(&models.User{}, &models.Post{}) //database migration
 
 	server.Router = mux.NewRouter()

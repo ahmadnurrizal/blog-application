@@ -18,38 +18,54 @@ import (
 
 func (server *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 
+	// reading the body of the incoming HTTP request
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	// decodes the JSON body of the request into a Go struct models.Post
 	post := models.Post{}
 	err = json.Unmarshal(body, &post)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	// prepare the post for insertion into the database
 	post.Prepare()
+
+	// validate the data in the struct
 	err = post.Validate()
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	// extracts the user ID from the JWT token
 	uid, err := auth.ExtractTokenID(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
 	}
+
+	// checks if the user ID extracted from the token is equal to the AuthorID field in the post struct
 	if uid != post.AuthorID {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
 		return
 	}
+
+	//  saves the post to the database using the SavePost method and passing in the database instance
 	postCreated, err := post.SavePost(server.DB)
 	if err != nil {
+		// format error messages returned from the database
 		formattedError := formaterror.FormatError(err.Error())
 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
 		return
 	}
+
+	// response header is set with the Location of the newly created post, and a JSON response is sent with the newly created post and a status code of http.StatusCreated.
 	w.Header().Set("Lacation", fmt.Sprintf("%s%s/%d", r.Host, r.URL.Path, postCreated.ID))
 	responses.JSON(w, http.StatusCreated, postCreated)
 }

@@ -28,6 +28,7 @@ func (p *Post) Prepare() {
 	p.UpdatedAt = time.Now()
 }
 
+// validation function for a struct Post
 func (p *Post) Validate() error {
 
 	if p.Title == "" {
