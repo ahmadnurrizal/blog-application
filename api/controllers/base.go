@@ -45,14 +45,16 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 	}
 
 	// run autoMigrate for user & post table
+	// If debugging enabled with the Debug() method, GORM will print out detailed information about the SQL statements that are executed
 	server.DB.Debug().AutoMigrate(&models.User{}, &models.Post{}) //database migration
 
 	server.Router = mux.NewRouter()
-
+	// initiate routes
 	server.initializeRoutes()
 }
 
 func (server *Server) Run(addr string) {
 	fmt.Println("Listening to port 8080")
+	// By using log.Fatal, we ensure that the program exits with a non-zero status code if there is an error starting the server.
 	log.Fatal(http.ListenAndServe(addr, server.Router))
 }

@@ -14,11 +14,14 @@ import (
 )
 
 func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
+	// read input from client
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	// creates a new empty models.User struct and unmarshals the request body into it using the json.Unmarshal function
 	user := models.User{}
 	err = json.Unmarshal(body, &user)
 	if err != nil {

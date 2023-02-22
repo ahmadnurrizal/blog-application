@@ -16,7 +16,7 @@ var server = controllers.Server{}
 func Run() {
 
 	var err error
-	err = godotenv.Load()
+	err = godotenv.Load() //load environment variables from a file, will return nil if error not exist
 	if err != nil {
 		log.Fatalf("Error getting env, not comming through %v", err)
 	} else {
